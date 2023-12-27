@@ -1,4 +1,4 @@
-import Link from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
   return (
@@ -7,7 +7,7 @@ const SignUp = () => {
       <form className="flex flex-col gap-5 ">
         <input
           type="text"
-          placeholder="username"
+          placeholder="Username"
           className="border p-3 rounded-xl"
           id="username"
         />
