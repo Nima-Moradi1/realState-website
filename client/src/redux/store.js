@@ -1,8 +1,17 @@
-import { configureStore } from "@reduxjs/toolkit";
-import useReducer from "./user/userSlice";
-
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import userReducer from "./user/userSlice";
+import { persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import persistStore from "redux-persist/es/persistStore";
+const rootReducer = combineReducers({ user: userReducer });
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistConfig = {
+  key: "root",
+  storage,
+  version: 1,
+};
 export const store = configureStore({
-  reducer: { user: useReducer },
+  reducer: persistedReducer,
   // we don't check if a variable is serializable
   // because we may get errors in the app
   // seriazabling The process whereby an object or data structure is
@@ -13,3 +22,5 @@ export const store = configureStore({
       serializableCheck: false,
     }),
 });
+
+export const persistor = persistStore(store);
