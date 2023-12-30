@@ -1,3 +1,5 @@
+/* eslint-disable */
+/* prettier-ignore */
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
@@ -32,6 +34,43 @@ export const signin = async (req, res, next) => {
       .status(200)
       .json(rest);
   } catch (error) {
+    next(error);
+  }
+};
+// here i want to authenticate with google
+export const google = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const { password: pass, ...rest } = user._doc;
+      res
+      .cookie("access_token", token, { httpOnly: true })
+      .status(200)
+      .json(rest);
+    } else {
+      // if user doesn't exist , then we're creating one !
+      // since password is required , we should create a random password
+      // so the toString(36) means nums from 0-9 and letters A-Z
+      // and then we slice the last 8 digits of the password
+      const generatedPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = bcrypt.hashSync(generatedPassword, 10);
+      const newUser = new User({
+        username:req.body.name.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-3),
+        email: req.body.email,
+        password: hashedPassword,
+        avatar: req.body.photo,
+      });
+      await newUser.save(); 
+      const token = jwt.sign({id : newUser._id }, process.env.JWT_SECRET)
+      const {password : pass , ...rest } = newUser._doc ;
+      res.cookie('access_token' , token , {httpOnly : true})
+      .status(200)
+      .json(rest) ;
+    }
+  } catch (error) {
+    // we pass the next error that we created before
     next(error);
   }
 };

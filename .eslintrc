@@ -1,0 +1,4 @@
+{
+    "ignorePatterns": ["./api/controllers/auth.controller.js"]
+  }
+
